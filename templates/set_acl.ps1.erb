@@ -37,7 +37,7 @@ try {
 } catch {
 
   # If we fail to set ANY of the ACEs - print the error and exit
-  write-host $_.Exception.Message
+  write-error $_.Exception.Message
   exit 1
 
 }
