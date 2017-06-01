@@ -22,7 +22,7 @@ define registry_acl (
     unless    => template('registry_acl/check_acl.ps1.erb'),
     command   => template('registry_acl/set_acl.ps1.erb'),
     provider  => powershell,
-    logoutput => true,
+    logoutput => false,
   }
 
 }
