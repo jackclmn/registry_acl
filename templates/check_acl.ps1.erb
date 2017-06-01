@@ -45,7 +45,7 @@ try {
   <% end -%>
 
 } catch {
-    write-host $_.Exception.Message
+    # If we can't read ACE or ACL; we definitely are not in desired state 
     exit 999
 }
 
