@@ -2,6 +2,9 @@ $purge           = '<%= @purge %>'
 $regkey          = '<%= @regkey %>'
 $parent_inherit  = '<%= @inherit_from_parent %>'
 
+# Fail if any cmdlet fails
+$ErrorActionPreference = "Stop"
+
 if ($purge -eq 'true') {
   $objACL = New-Object System.Security.AccessControl.RegistrySecurity
   $objACL.SetOwner([System.Security.Principal.NTAccount]'Administrator')
