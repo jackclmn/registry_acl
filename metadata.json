@@ -1,6 +1,6 @@
 {
   "name": "ipcrm-registry_acl",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "ipcrm",
   "summary": "Manage Windows Registry ACL",
   "license": "Apache-2.0",
