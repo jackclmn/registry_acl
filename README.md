@@ -48,7 +48,7 @@ Boolean to specify if all ACE should be purged that are not specifically named. 
 
 ##### `target`
 
-Path to the registry key.  Expressed via _hive_:_path_.  For example, hklm:SOFTWARE\test
+Path to the registry key.  Expressed via _hive_:_path_ or _hive_\_path_.  For example, hklm:SOFTWARE\test, hklm\software\test
 
 #### == **Examples** ==
 
