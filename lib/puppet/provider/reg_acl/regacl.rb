@@ -20,6 +20,10 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
     name
   end
 
+  def get_purge_state
+    @resource[:purge].downcase.to_sym
+  end
+
   def get_account_sid(account)
     # Nasty Hack space...
     # The APPLICATION PACKAGE AUTHORITY\ALL APPLICATION PACKAGES will not resolve to a SID properly - See PUP-2985
@@ -190,7 +194,6 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
         # If even one ACE is inherited, we know that we are inherting
         if v["IsInherited"] == true
           inherit = true
-          next
         end
 
         tace = {}
@@ -201,7 +204,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
         tace["InheritanceFlags"]  = get_inherit(v["InheritanceFlags"])
         tace["PropagationFlags"]  = get_propagate(v["PropagationFlags"])
 
-        newace.push(tace) if v["IsInherited"] == false
+        newace.push(tace)
       end
 
       @acl_hash[:permissions] = newace
@@ -211,24 +214,8 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
     @acl_hash
   end
 
-  def get_writable_ace(acelist)
-    pruned_acelist = []
-    acelist.each do |a|
-      if a['IsInherited'].eql?(false)
-        pruned_acelist.push(a)
-      end
-    end
-
-    pruned_acelist
-  end
-
-  def are_permissions_insync?(current_raw,should_raw)
+  def are_permissions_insync?(current,should)
     purge = @resource[:purge].downcase.to_sym
-
-    # We only compare ALL ACE in ACL if purge is all
-    #   i.e. We don't consider inherited ACE unless we are replacing the entire ACL
-    current = get_writable_ace(current_raw)
-    should  = get_writable_ace(should_raw)
 
     current.sort_by! {|m| m['IdentityReference']}
     should.sort_by! {|m| m['IdentityReference']}
@@ -237,10 +224,10 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
     Puppet.debug "Reg_acl: Permissions Insync? Check; Should - #{should}"
 
     if purge == :all
-      Puppet.debug "Intersect, purge all, - #{current_raw & should_raw}"
+      Puppet.debug "Intersect, purge all, - #{current & should}"
       # If we are purging everything (ie declaring all ACE that should be present) -
       # should will be equivalent to current
-      current_raw == should_raw
+      current == should
     elsif purge == :listed
       Puppet.debug "Intersect, purge listed, - #{current & should}"
       # If we are only removing the declared ACE (if they exist), the intersection will be
@@ -283,16 +270,19 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
   end
 
   def permissions_to_s(value)
+    newvalue = Array.new
     value.each {|p|
-      p.update(p){|k,v|
+      newhash = Hash.new
+      p.each {|k,v|
         if k == 'IdentityReference'
-          get_account_name(v)
+          newhash[k] = get_account_name(v)
         else
-          v
+          newhash[k] = v
         end
       }
+      newvalue.push(newhash)
     }
-    value
+    newvalue
   end
 
   def self.instances
@@ -324,14 +314,14 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
       # If we adding, we need to clear out any existing ace that doesn't match
       if @resource[:purge].downcase.to_sym == :false
         cmd << <<-ps1.gsub(/^\s+/,"")
-          $acesToRemove = $objACL.Access | ?{ $_.IsInherited -eq $false -and $_.IdentityReference -eq '#{p['IdentityReference']}' }
+          $acesToRemove = $objACL.Access | ?{ $_.IsInherited -eq $false -and $_.IdentityReference -eq '#{get_account_name(p['IdentityReference'])}' }
           if ($acesToRemove) { $objACL.RemoveAccessRule($acesToRemove) }
         ps1
       end
 
       if p['IsInherited'] == false
         cmd << <<-ps1.gsub(/^\s+/, "")
-          $secPrincipal    = '#{p['IdentityReference']}'
+          $secPrincipal    = '#{get_account_name(p['IdentityReference'])}'
           $InheritanceFlag = [System.Security.AccessControl.InheritanceFlags]'#{p['InheritanceFlags']}'
           $PropagationFlag = [System.Security.AccessControl.PropagationFlags]'#{p['PropagationFlags']}'
           $objAccess       = [System.Security.AccessControl.RegistryRights]'#{p['RegistryRights']}'
