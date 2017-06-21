@@ -23,7 +23,7 @@ Puppet::Type.newtype(:reg_acl) do
 
     munge do |value|
       t = value.split(/[:,\\]/)
-      newvalue = "#{t[0].gsub(/\\/,':')}#{t[1..-1].join('\\')}"
+      newvalue = "#{t[0]}:#{t[1..-1].join('\\')}"
       newvalue
     end
 
@@ -41,7 +41,7 @@ Puppet::Type.newtype(:reg_acl) do
 
     munge do |value|
       t = value.split(/[:,\\]/)
-      newvalue = "#{t[0].gsub(/\\/,':')}#{t[1..-1].join('\\')}"
+      newvalue = "#{t[0]}:#{t[1..-1].join('\\')}"
       newvalue
     end
 
@@ -100,12 +100,24 @@ Puppet::Type.newtype(:reg_acl) do
     end
 
     def change_to_s(current,should)
+
+      purge = provider.get_purge_state
+      newperms = Hash.new
+
+      if purge == :all
+        newperms = should
+      elsif purge == :listed
+        newperms = current - ( current & should )
+      else
+        newperms = current + should
+      end
+
       # Build a readble message
       msg = String.new
       msg << "Permissions changed from:\n[\n"
       provider.permissions_to_s(current).each {|p| msg << "  #{p.sort_by {|k,v| k.to_s}.to_h}\n" }
       msg << "]\n  to\n[\n"
-      provider.permissions_to_s(should).each {|p| msg << "  #{p.sort_by {|k,v| k.to_s}.to_h}\n" }
+      provider.permissions_to_s(newperms).each {|p| msg << "  #{p.sort_by {|k,v| k.to_s}.to_h}\n" }
       msg << "\n]\n"
 
       return msg
@@ -141,11 +153,11 @@ Puppet::Type.newtype(:reg_acl) do
 
   validate do
     # If purge is set to all then inherit_from_parent MUST be true
-    if self[:purge] == :all and self[:inherit_from_parent] == true
+    if self[:purge].downcase.to_sym == :all and self[:inherit_from_parent].downcase.to_sym == :true
         raise ArgumentError, "Cannot purge set purge to 'all' and inherit_from_parent to 'true'!  Set inherit_from_parent to false to manage explicit permissions!"
     end
 
-    if self[:purge] == :all
+    if self[:purge].downcase.to_sym == :all
       raise ArgumentError, "Must have an owner set!" unless self[:owner]
     end
   end

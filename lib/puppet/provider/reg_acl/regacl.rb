@@ -20,6 +20,10 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
     name
   end
 
+  def get_purge_state
+    @resource[:purge].downcase.to_sym
+  end
+
   def get_account_sid(account)
     # Nasty Hack space...
     # The APPLICATION PACKAGE AUTHORITY\ALL APPLICATION PACKAGES will not resolve to a SID properly - See PUP-2985
@@ -266,16 +270,19 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
   end
 
   def permissions_to_s(value)
+    newvalue = Array.new
     value.each {|p|
-      p.update(p){|k,v|
+      newhash = Hash.new
+      p.each {|k,v|
         if k == 'IdentityReference'
-          get_account_name(v)
+          newhash[k] = get_account_name(v)
         else
-          v
+          newhash[k] = v
         end
       }
+      newvalue.push(newhash)
     }
-    value
+    newvalue
   end
 
   def self.instances
@@ -307,14 +314,14 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
       # If we adding, we need to clear out any existing ace that doesn't match
       if @resource[:purge].downcase.to_sym == :false
         cmd << <<-ps1.gsub(/^\s+/,"")
-          $acesToRemove = $objACL.Access | ?{ $_.IsInherited -eq $false -and $_.IdentityReference -eq '#{p['IdentityReference']}' }
+          $acesToRemove = $objACL.Access | ?{ $_.IsInherited -eq $false -and $_.IdentityReference -eq '#{get_account_name(p['IdentityReference'])}' }
           if ($acesToRemove) { $objACL.RemoveAccessRule($acesToRemove) }
         ps1
       end
 
       if p['IsInherited'] == false
         cmd << <<-ps1.gsub(/^\s+/, "")
-          $secPrincipal    = '#{p['IdentityReference']}'
+          $secPrincipal    = '#{get_account_name(p['IdentityReference'])}'
           $InheritanceFlag = [System.Security.AccessControl.InheritanceFlags]'#{p['InheritanceFlags']}'
           $PropagationFlag = [System.Security.AccessControl.PropagationFlags]'#{p['PropagationFlags']}'
           $objAccess       = [System.Security.AccessControl.RegistryRights]'#{p['RegistryRights']}'
