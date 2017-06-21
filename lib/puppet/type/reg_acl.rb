@@ -21,6 +21,12 @@ Puppet::Type.newtype(:reg_acl) do
       end
     end
 
+    munge do |value|
+      t = value.split(/[:,\\]/)
+      newvalue = "#{t[0].gsub(/\\/,':')}#{t[1..-1].join('\\')}"
+      newvalue
+    end
+
     isnamevar
   end
 
@@ -32,6 +38,13 @@ Puppet::Type.newtype(:reg_acl) do
         raise ArgumentError, "A non-empty target must be specified."
       end
     end
+
+    munge do |value|
+      t = value.split(/[:,\\]/)
+      newvalue = "#{t[0].gsub(/\\/,':')}#{t[1..-1].join('\\')}"
+      newvalue
+    end
+
   end
 
   newproperty(:owner) do
