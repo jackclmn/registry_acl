@@ -187,11 +187,11 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
       # acelist is not an array of hashes if there is only one ACE; need to convert it
       acelist = [acelist] if acelist.class == Hash
       acelist.each do |v|
-        # If even one ACE is inherited, we know that we are inherting
-        if v["IsInherited"] == true
-          inherit = true
-          next
-        end
+#        # If even one ACE is inherited, we know that we are inherting
+#        if v["IsInherited"] == true
+#          inherit = true
+#          next
+#        end
 
         tace = {}
         tace["RegistryRights"]    = get_perm(v["RegistryRights"])
