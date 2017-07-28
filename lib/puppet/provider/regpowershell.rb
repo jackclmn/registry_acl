@@ -19,14 +19,14 @@ class Puppet::Provider::Regpowershell < Puppet::Provider
     utilpath = File.expand_path('../../../puppet_x/util', __FILE__)
     utilpath = File.join(utilpath, 'Set-LHSTokenPrivilege.ps1').gsub(File::SEPARATOR, File::ALT_SEPARATOR)
     newcommand = "\n. #{utilpath}\n"
-    newcommand << "Set-LHSTokenPrivilege -Privilege SeRestorePrivilege\n"
-    newcommand << "Set-LHSTokenPrivilege -Privilege SeBackupPrivilege\n"
-    newcommand << "Set-LHSTokenPrivilege -Privilege SeTakeOwnershipPrivilege\n"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeRestorePrivilege -ErrorAction stop | out-null\n"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeBackupPrivilege -ErrorAction stop | out-null \n"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeTakeOwnershipPrivilege -ErrorAction stop | out-null\n"
     newcommand << command
     newcommand << "\n"
-    newcommand << "Set-LHSTokenPrivilege -Privilege SeRestorePrivilege -disable\n"
-    newcommand << "Set-LHSTokenPrivilege -Privilege SeBackupPrivilege -disable\n"
-    newcommand << "Set-LHSTokenPrivilege -Privilege SeTakeOwnershipPrivilege -disable\n"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeRestorePrivilege -disable | out-null\n"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeBackupPrivilege -disable | out-null\n"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeTakeOwnershipPrivilege -disable | out-null\n"
 
 
     time = Time.new
