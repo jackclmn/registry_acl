@@ -349,7 +349,9 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
     if @property_flush[:owner]
       Puppet.debug "Reg_acl: Enter flush, set owner"
       cmd << <<-ps1.gsub(/^\s+/, "")
-        Set-RegOwner '#{@resource[:target]}' -Account '#{get_account_name(@resource[:owner])}' -ErrorAction Stop
+        $acl = Get-Acl '#{@resource[:target]}'
+        $acl.SetOwner([System.Security.Principal.NTAccount]'#{get_account_name(@resource[:owner])}')
+        set-acl '#{@resource[:target]}' $acl
       ps1
     end
 
