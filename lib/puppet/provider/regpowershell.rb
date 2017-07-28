@@ -17,8 +17,16 @@ class Puppet::Provider::Regpowershell < Puppet::Provider
 
     command.prepend(precommand) if !precommand.nil?
     utilpath = File.expand_path('../../../puppet_x/util', __FILE__)
-    utilpath = File.join(utilpath, 'Set-RegOwner.ps1').gsub(File::SEPARATOR, File::ALT_SEPARATOR)
-    newcommand = "\n. #{utilpath}\n" << command
+    utilpath = File.join(utilpath, 'Set-LHSTokenPrivilege.ps1').gsub(File::SEPARATOR, File::ALT_SEPARATOR)
+    newcommand = "\n. #{utilpath}\n"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeRestorePrivilege"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeBackupPrivilege"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeTakeOwnershipPrivilege"
+    newcommand << command
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeRestorePrivilege -disable"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeBackupPrivilege -disable"
+    newcommand << "Set-LHSTokenPrivilege -Privilege SeTakeOwnershipPrivilege -disable"
+
 
     time = Time.new
     output = powershell(newcommand)
