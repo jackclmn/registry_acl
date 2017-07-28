@@ -23,6 +23,7 @@ class Puppet::Provider::Regpowershell < Puppet::Provider
     newcommand << "Set-LHSTokenPrivilege -Privilege SeBackupPrivilege\n"
     newcommand << "Set-LHSTokenPrivilege -Privilege SeTakeOwnershipPrivilege\n"
     newcommand << command
+    newcommand << "\n"
     newcommand << "Set-LHSTokenPrivilege -Privilege SeRestorePrivilege -disable\n"
     newcommand << "Set-LHSTokenPrivilege -Privilege SeBackupPrivilege -disable\n"
     newcommand << "Set-LHSTokenPrivilege -Privilege SeTakeOwnershipPrivilege -disable\n"
