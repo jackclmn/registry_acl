@@ -4,8 +4,7 @@ begin
   require 'win32/security'
   require 'win32/registry'
 rescue LoadError
-  puts "This does not appear to be a Windows system.  Exiting..."
-  exit
+  puts "This does not appear to be a Windows system.  Provider may not function."
 end
 
 Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowershell) do
