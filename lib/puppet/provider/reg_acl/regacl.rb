@@ -339,7 +339,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
     end
 
     cmd << <<-ps1.gsub(/^\s+/, "")
-      Set-ACL #{@resource[:target]} $objACL -ErrorAction Stop
+      Set-ACL '#{@resource[:target]}' $objACL -ErrorAction Stop
     ps1
 
     cmd
@@ -364,7 +364,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
         ps1
       else
         cmd << <<-ps1.gsub(/^\s+/, "")
-          $objACL = get-acl #{@resource[:target]} -ErrorAction Stop
+          $objACL = get-acl '#{@resource[:target]}' -ErrorAction Stop
         ps1
       end
       cmd << ace_rule_builder
@@ -374,9 +374,9 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
       Puppet.debug "Reg_acl: Enter flush, inherit from parent"
       rule = @property_flush[:inherit_from_parent].downcase.to_sym.eql?(:true) ? '$False,$False' : '$True,$False'
       cmd << <<-ps1.gsub(/^\s+/, "")
-        $t = get-acl #{@resource[:target]}
+        $t = get-acl '#{@resource[:target]}'
         $t.SetAccessRuleProtection(#{rule})
-        Set-ACL #{@resource[:target]} $t -ErrorAction Stop
+        Set-ACL '#{@resource[:target]}' $t -ErrorAction Stop
       ps1
     end
 
