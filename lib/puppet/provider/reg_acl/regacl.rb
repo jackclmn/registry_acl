@@ -200,15 +200,22 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
           inherit = true
         end
 
-        tace = {}
-        tace["RegistryRights"]    = get_perm(v["RegistryRights"])
-        tace["AccessControlType"] = get_access_control_type(v["AccessControlType"])
-        tace["IdentityReference"] = get_account_sid(v["IdentityReference"]["Value"])
-        tace["IsInherited"]       = v["IsInherited"]
-        tace["InheritanceFlags"]  = get_inherit(v["InheritanceFlags"])
-        tace["PropagationFlags"]  = get_propagate(v["PropagationFlags"])
-
-        newace.push(tace)
+        begin
+          tace = {}
+          tace["RegistryRights"]    = get_perm(v["RegistryRights"])
+          tace["AccessControlType"] = get_access_control_type(v["AccessControlType"])
+          tace["IdentityReference"] = get_account_sid(v["IdentityReference"]["Value"])
+          tace["IsInherited"]       = v["IsInherited"]
+          tace["InheritanceFlags"]  = get_inherit(v["InheritanceFlags"])
+          tace["PropagationFlags"]  = get_propagate(v["PropagationFlags"])
+        rescue => ex
+          # Need a notice message here that indicates what went wrong and
+          # that a pre-existing acl is being ignored.
+          Puppet.debug "Exception caught: #{ex.inspect}"
+          Puppet.notice "Pre-existing ACL on: #{target} #{v.inspect} Ignored due to: #{ex.inspect}"
+        else
+          newace.push(tace)
+        end
       end
 
       @acl_hash[:permissions] = newace
