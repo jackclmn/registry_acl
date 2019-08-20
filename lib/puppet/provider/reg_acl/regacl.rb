@@ -30,7 +30,8 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
     account = account.to_s.split(/\\/)[1] if account.to_s.include?('APPLICATION PACKAGE AUTHORITY')
 
     sid = Puppet::Util::Windows::SID.name_to_sid(account)
-    raise "Reg_acl: get_account_sid could not find a SID for account #{account}" unless !sid.nil?
+    #raise "Reg_acl: get_account_sid could not find a SID for account #{account}" unless !sid.nil?
+    sid = account unless !sid.nil?
     sid
   end
 
