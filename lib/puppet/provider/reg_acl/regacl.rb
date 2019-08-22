@@ -333,7 +333,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
 
       if p['IsInherited'] == false
         cmd << <<-ps1.gsub(/^\s+/, "")
-          $secPrincipal    = '#{get_account_name(p['IdentityReference'])}'
+          $secPrincipal    = '#{get_account_name(get_account_sid(p['IdentityReference']))}'
           $InheritanceFlag = [System.Security.AccessControl.InheritanceFlags]'#{p['InheritanceFlags']}'
           $PropagationFlag = [System.Security.AccessControl.PropagationFlags]'#{p['PropagationFlags']}'
           $objAccess       = [System.Security.AccessControl.RegistryRights]'#{p['RegistryRights']}'
