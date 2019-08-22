@@ -76,6 +76,8 @@ Puppet::Type.newtype(:reg_acl) do
     RegistryRights: String of Permissions to apply. Keep in mind you can combine values where needed(single string, comma seperated). Common values are 'FullControl', 'ReadKey', and 'WriteKey'. Valid values: 'QueryValues','SetValue','CreateSubKey','EnumerateSubKeys','Notify','CreateLink','ReadKey','WriteKey','Delete','ReadPermissions','ChangePermissions','TakeOwnership','FullControl'. See https://msdn.microsoft.com/en-us/library/system.security.accesscontrol.registryrights(v=vs.110).aspx for more details.
     "
 
+    Puppet.debug "Reg_acl: First debug of value: #{value}"
+
     validate do |value|
       raise ArgumentError, "All supplied ACE must contain the RegistryRights setting"    if !value.has_key?('RegistryRights')
       raise ArgumentError, "All supplied ACE must contain the IdentityReference setting" if !value.has_key?('IdentityReference')
