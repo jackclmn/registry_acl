@@ -282,7 +282,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
       newhash = Hash.new
       p.each {|k,v|
         if k == 'IdentityReference'
-          newhash[k] = get_account_name(v)
+          newhash[k] = get_account_name(get_account_sid(v))
         else
           newhash[k] = v
         end
