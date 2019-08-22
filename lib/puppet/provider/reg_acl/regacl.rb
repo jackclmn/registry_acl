@@ -321,7 +321,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
       # If we adding, we need to clear out any existing ace that doesn't match
       if @resource[:purge].downcase.to_sym == :false
         cmd << <<-ps1.gsub(/^\s+/,"")
-          $acesToRemove = $objACL.Access | ?{ $_.IsInherited -eq $false -and $_.IdentityReference -eq '#{get_account_name(p['IdentityReference'])}' }
+          $acesToRemove = $objACL.Access | ?{ $_.IsInherited -eq $false -and $_.IdentityReference -eq '#{get_account_name(get_account_sid(p['IdentityReference']))}' }
           if ($acesToRemove) {
             $acesToRemove | ForEach-Object { 
               $remACE = New-Object System.Security.AccessControl.RegistryAccessRule($_.IdentityReference, $_.RegistryRights, $_.InheritanceFlags, $_.PropagationFlags, $_.AccessControlType)
