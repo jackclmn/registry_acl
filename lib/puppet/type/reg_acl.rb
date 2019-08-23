@@ -97,7 +97,7 @@ Puppet::Type.newtype(:reg_acl) do
 
       # Sort perms
       value['RegistryRights'] = value['RegistryRights'].delete("\s").split(/,/).sort.join(', ')
-
+      Puppet.debug "Reg_acl: last debug of value inside munge: #{value}"
       value
     end
 
@@ -126,6 +126,8 @@ Puppet::Type.newtype(:reg_acl) do
     end
 
     def insync?(current)
+      Puppet.debug "Reg_acl: First debug of current inside insync: #{current}"
+      Puppet.debug "Reg_acl: First debug of should inside insync: #{@should}"
       return provider.are_permissions_insync?(current, @should)
     end
  end

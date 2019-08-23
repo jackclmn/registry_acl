@@ -224,11 +224,14 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
   def are_permissions_insync?(current,should)
     purge = @resource[:purge].downcase.to_sym
 
+    Puppet.debug "Reg_acl: Permissions Insync? Check before sort; Current - #{current}"
+    Puppet.debug "Reg_acl: Permissions Insync? Check before sort; Should - #{should}"
+
     current.sort_by! {|m| m['IdentityReference']}
     should.sort_by! {|m| m['IdentityReference']}
 
-    Puppet.debug "Reg_acl: Permissions Insync? Check; Current - #{current}"
-    Puppet.debug "Reg_acl: Permissions Insync? Check; Should - #{should}"
+    Puppet.debug "Reg_acl: Permissions Insync? Check after sort; Current - #{current}"
+    Puppet.debug "Reg_acl: Permissions Insync? Check after sort; Should - #{should}"
 
     if purge == :all
       Puppet.debug "Intersect, purge all, - #{current & should}"
