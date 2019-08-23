@@ -92,7 +92,7 @@ Puppet::Type.newtype(:reg_acl) do
       value['IsInherited']       = false                               if !value.has_key?('IsInherited')
       value['InheritanceFlags']  = 'ContainerInherit, ObjectInherit'   if !value.has_key?('InheritanceFlags')
       value['PropagationFlags']  = 'None'                              if !value.has_key?('PropagationFlags')
-      value['IdentityReference'] = provider.get_account_sid(value['IdentityReference'])
+      value['IdentityReference'] = provider.get_account_name(value['IdentityReference'])
       #value['IdentityReference'] = value['IdentityReference']
 
       # Sort perms
