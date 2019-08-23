@@ -201,7 +201,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
           tace = {}
           tace["RegistryRights"]    = get_perm(v["RegistryRights"])
           tace["AccessControlType"] = get_access_control_type(v["AccessControlType"])
-          tace["IdentityReference"] = get_account_sid(v["IdentityReference"]["Value"])
+          tace["IdentityReference"] = v["IdentityReference"]["Value"]
           tace["IsInherited"]       = v["IsInherited"]
           tace["InheritanceFlags"]  = get_inherit(v["InheritanceFlags"])
           tace["PropagationFlags"]  = get_propagate(v["PropagationFlags"])
@@ -282,7 +282,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
       newhash = Hash.new
       p.each {|k,v|
         if k == 'IdentityReference'
-          newhash[k] = get_account_name(get_account_sid(v))
+          newhash[k] = v
         else
           newhash[k] = v
         end
@@ -321,7 +321,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
       # If we adding, we need to clear out any existing ace that doesn't match
       if @resource[:purge].downcase.to_sym == :false
         cmd << <<-ps1.gsub(/^\s+/,"")
-          $acesToRemove = $objACL.Access | ?{ $_.IsInherited -eq $false -and $_.IdentityReference -eq '#{get_account_name(get_account_sid(p['IdentityReference']))}' }
+          $acesToRemove = $objACL.Access | ?{ $_.IsInherited -eq $false -and $_.IdentityReference -eq '#{p['IdentityReference']}' }
           if ($acesToRemove) {
             $acesToRemove | ForEach-Object { 
               $remACE = New-Object System.Security.AccessControl.RegistryAccessRule($_.IdentityReference, $_.RegistryRights, $_.InheritanceFlags, $_.PropagationFlags, $_.AccessControlType)
@@ -333,7 +333,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
 
       if p['IsInherited'] == false
         cmd << <<-ps1.gsub(/^\s+/, "")
-          $secPrincipal    = '#{get_account_name(get_account_sid(p['IdentityReference']))}'
+          $secPrincipal    = '#{p['IdentityReference']}'
           $InheritanceFlag = [System.Security.AccessControl.InheritanceFlags]'#{p['InheritanceFlags']}'
           $PropagationFlag = [System.Security.AccessControl.PropagationFlags]'#{p['PropagationFlags']}'
           $objAccess       = [System.Security.AccessControl.RegistryRights]'#{p['RegistryRights']}'
