@@ -320,7 +320,7 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
     @property_flush[:permissions].each do |p|
       # Convert to proper account name
       # Administrators -> SID -> BUILTIN\Adinistrators
-      p['IdentityReference'] = get_account_name(get_account_sid(p['IdentityReference'])
+      p['IdentityReference'] = get_account_name(get_account_sid(p['IdentityReference']))
 
       # If we adding, we need to clear out any existing ace that doesn't match
       if @resource[:purge].downcase.to_sym == :false
