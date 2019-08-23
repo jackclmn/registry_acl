@@ -227,6 +227,8 @@ Puppet::Type.type(:reg_acl).provide(:regacl, parent: Puppet::Provider::Regpowers
     Puppet.debug "Reg_acl: Permissions Insync? Check before sort; Current - #{current}"
     Puppet.debug "Reg_acl: Permissions Insync? Check before sort; Should - #{should}"
 
+    should['IdentityReference'] = get_account_name(get_account_sid(should['IdentityReference']))
+
     current.sort_by! {|m| m['IdentityReference']}
     should.sort_by! {|m| m['IdentityReference']}
 
